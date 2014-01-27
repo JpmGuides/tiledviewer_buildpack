@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# bin/release <build-dir>
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+BUILD_DIR=$1
+NAME=$($BIN_DIR/detect $BUILD_DIR) || exit 1
+
+cat <<EOF
+---
+config_vars:
+  PATH: /app/.heroku/venv/bin:$PATH
+  LD_LIBRARY_PATH: /app/.heroku/vendor/lib
+  MAGICK_HOME: /app/.heroku/vendor/lib
+  LANG: en_US.UTF-8
+EOF
