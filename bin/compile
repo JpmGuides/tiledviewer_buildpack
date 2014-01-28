@@ -30,12 +30,12 @@ function indent() {
 ############################
 
 opencv_version="2.4.8"
-opencv_build_url=""
+opencv_build_url="http://jpm-guides-staging.s3.amazonaws.com/opencv-${opencv_version}.tar.gz"
 opencv_dir="opencv-${opencv_version}"
 opencv_tar_file="opencv-${opencv_version}.tar.gz"
 
 tiledviewer_version="1.0.0"
-tiledviewer_build_url=""
+tiledviewer_build_url="http://jpm-guides-staging.s3.amazonaws.com/tiledviewer-${tiledviewer_version}.tar.gz"
 tiledviewer_dir="tiledviewer-${tiledviewer_version}"
 tiledviewer_tar_file="tiledviwer-${tiledviewer_version}.tar.gz"
 
@@ -43,19 +43,26 @@ tiledviewer_tar_file="tiledviwer-${tiledviewer_version}.tar.gz"
 #   opencv installation    #
 ############################
 
-steps 'installing opencv v{openccv_version}...' | indent
+steps "installing opencv v${opencv_version}..."
 
-build_target=${build}/vendor
+build_target=${build}/vendor/${opencv_dir}
 cache_target=${cache}/${opencv_tar_file}
 
-if [ ! -f ${cache_target} ]; then
-  echo 'No cached compile detected. Installing...'
+if [ ! -f ${cache_target}/ ]; then
+  echo 'No cached compile detected. Installing...' | indent
 
-  mkdir -p ${target}
-  cd ${target}
+  mkdir -p ${build_target}
+  cd ${build_target}
 
   curl --silent --max-time 120 --location ${opencv_build_url} > ${opencv_tar_file}
   tar zxf ${opencv_tar_file}
+
+  # cache slug
+  rm ${opencv_tar_file}
+  tar czf ${cache_target} -C ${build_target} .
+fi
+
+  echo 'Linking binaries...' | indent
 
   #linking opencv in the bin of app
   mkdir -p $BUILD_DIR/bin
@@ -64,33 +71,31 @@ if [ ! -f ${cache_target} ]; then
   ln -s ../vendor/${opencv_dir}/bin/opencv_performance $BUILD_DIR/bin/opencv_performance
   ln -s ../vendor/${opencv_dir}/bin/opencv_traincascade $BUILD_DIR/bin/opencv_traincascade
 
-  # cache slug
-  rm ${opencv_tar_file}
-  tar czf ${cache_target} ${opencv_vendored_dir} .
-fi
-
 ############################
 # tiledviewer installation #
 ############################
 
-steps 'installing tiledviewer v{tiledviewer_version}...' | indent
+steps "installing tiledviewer v${tiledviewer_version}..."
 
-build_target=${build}/vendor
+build_target=${build}/vendor/${tiledviewer_dir}
 cache_target=${cache}/${tiledviewer_tar_file}
 
 if [ ! -f ${cache_target} ]; then
-  echo 'No cached compile detected. Installing...'
+  echo 'No cached compile detected. Installing...' | indent
 
-  mkdir -p ${target}
-  cd ${target}
+  mkdir -p ${build_target}
+  cd ${build_target}
 
-  curl --silent --max-time 120 --location "${tiledviewer_url}" > ${tiledviewer_tar_file}
-  tar zxf ${tiledviwer_tar_file}
-
-  #linking tile_generator in the bin of app
-  ln -s ../vendor/${tiledviewer_dir}/tile_generator $BUILD_DIR/bin/tile_generator
+  curl --silent --max-time 120 --location "${tiledviewer_build_url}" > ${tiledviewer_tar_file}
+  tar zxf ${tiledviewer_tar_file}
 
   #cache slug
   rm ${tiledviewer_tar_file}
-  tar czf ${cache_target} ${tiledviewer_vendored_dir} .
+  tar czf ${cache_target}  -C ${build_target} .
 fi
+
+echo 'Linking binaries...' | indent
+
+#linking tile_generator in the bin of app
+mkdir -p $BUILD_DIR/bin
+ln -s ../vendor/${tiledviewer_dir}/tile_generator $BUILD_DIR/bin/tile_generator
