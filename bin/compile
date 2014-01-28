@@ -1,12 +1,10 @@
-#install OpenCV
+#!/usr/bin/env bash
 
+# Fail fast and fail hard.
 set -e
 
-indent() {
-  sed -u 's/^/       /'
-}
-
-echo 'Compiling ...'
+# Prepend proper path for virtualenv hackery. This will be deprecated soon.
+export PATH=:/usr/local/bin:$PATH
 
 # Paths.
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
@@ -18,60 +16,81 @@ CACHED_DIRS=".heroku"
 build=$BUILD_DIR
 cache=$CACHE_DIR
 
-mkdir -p ${cache}
+# Syntax sugar.
+function steps (){
+  echo "-----> $@"
+}
 
-cmake_version="2.8.12.1"
-cmake_url="http://www.cmake.org/files/v2.8/cmake-2.8.12.1.tar.gz"
-cmake_file="cmake-${cmake_version}.tar.gz"
-cmake_tar_dir="cmake-${cmake_version}"
+function indent() {
+  sed -u 's/^/       /'
+}
 
-opencv_repository="git://code.opencv.org/opencv.git"
-opencv_version="2.4.5"
+############################
+#        package var       #
+############################
+
+opencv_version="2.4.8"
+opencv_build_url=""
 opencv_dir="opencv-${opencv_version}"
+opencv_tar_file="opencv-${opencv_version}.tar.gz"
 
-cache_target=${cache}/${cmake_file}
-build_target=${build}/.heroku
-target=/app/.heroku
+tiledviewer_version="1.0.0"
+tiledviewer_build_url=""
+tiledviewer_dir="tiledviewer-${tiledviewer_version}"
+tiledviewer_tar_file="tiledviwer-${tiledviewer_version}.tar.gz"
+
+############################
+#   opencv installation    #
+############################
+
+steps 'installing opencv v{openccv_version}...' | indent
+
+build_target=${build}/vendor
+cache_target=${cache}/${opencv_tar_file}
 
 if [ ! -f ${cache_target} ]; then
-  echo "No cached compile detected. Bulding..." | indent
-  cd $build
+  echo 'No cached compile detected. Installing...'
 
-  echo "Compiling cmake v${cmake_version}..." | indent
-  #Compile cmake
-  curl -s ${cmake_url} > ${cmake_file}
-  tar zxf ${cmake_file}
-  cd ${cmake_tar_dir}
-  ./bootstrap --prefix=${target} | indent
-  make | indent
-  make install | indent
-  cd ..
+  mkdir -p ${target}
+  cd ${target}
 
-  #Create cache slug
-  tar czf ${cache_target} -C ${target} .
+  curl --silent --max-time 120 --location ${opencv_build_url} > ${opencv_tar_file}
+  tar zxf ${opencv_tar_file}
+
+  #linking opencv in the bin of app
+  mkdir -p $BUILD_DIR/bin
+  ln -s ../vendor/${opencv_dir}/bin/opencv_createsamples $BUILD_DIR/bin/opencv_createsamples
+  ln -s ../vendor/${opencv_dir}/bin/opencv_haartraining $BUILD_DIR/bin/opencv_haartraining
+  ln -s ../vendor/${opencv_dir}/bin/opencv_performance $BUILD_DIR/bin/opencv_performance
+  ln -s ../vendor/${opencv_dir}/bin/opencv_traincascade $BUILD_DIR/bin/opencv_traincascade
+
+  # cache slug
+  rm ${opencv_tar_file}
+  tar czf ${cache_target} ${opencv_vendored_dir} .
 fi
 
-# mkdir -p ${build_target}
-# tar xzf ${cache_target} -C ${build_target}
-# PATH=${build_target}/bin:$PATH
+############################
+# tiledviewer installation #
+############################
 
-# cache_target=${cache}/${opencv_dir}
-# build_target=${build}/.heroku
-# target=/app/.heroku
+steps 'installing tiledviewer v{tiledviewer_version}...' | indent
 
-# if [ ! -f ${cache_target} ]; then
-  # echo "No cached compile detected. Bulding..." | indent
-  # cd $build
+build_target=${build}/vendor
+cache_target=${cache}/${tiledviewer_tar_file}
 
-  # echo "Compiling OpenCV v${opencv_version}..." | indent
-  #Compile OpenCV
-  # git clone ${opencv_repository} ${opencv_dir}
-  # cd ${opencv_dir}
-  # git checkout tags/${opencv_version}
-  # mkdir build
-  # cd build
+if [ ! -f ${cache_target} ]; then
+  echo 'No cached compile detected. Installing...'
 
-  # cmake -DBUILD_SHARED_LIBS=NO DCMAKE_SHARED_LINKER_FLAGS="-fPIC" -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DWITH_OPENEXR=OFF -DCMAKE_FIND_ROOT_PATH=${target} -DCMAKE_INSTALL_PREFIX=${target} .. | indent
-  # make -j 4 install | indent
-  # cd ..
-# fi
+  mkdir -p ${target}
+  cd ${target}
+
+  curl --silent --max-time 120 --location "${tiledviewer_url}" > ${tiledviewer_tar_file}
+  tar zxf ${tiledviwer_tar_file}
+
+  #linking tile_generator in the bin of app
+  ln -s ../vendor/${tiledviewer_dir}/tile_generator $BUILD_DIR/bin/tile_generator
+
+  #cache slug
+  rm ${tiledviewer_tar_file}
+  tar czf ${cache_target} ${tiledviewer_vendored_dir} .
+fi
