@@ -1,0 +1,30 @@
+to build tiledviewer :
+
+1. install ubuntu 10.04 LTS in a virtual machine
+2. install gcc and g++
+    sudo apt-get install gcc g++
+3. install cmake-2.8.12.2
+    wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz
+    tar zxf cmake-2.8.12.2.tar.gz
+    cd cmake-2.8.12.2
+    ./bootstrap
+    make
+    sudo make install
+4. compile statically opencv-2.4.8
+    download opencv2.4.8 from : http://sourceforge.net/projects/opencvlibrary/files/opencv-unix/2.4.8/opencv-2.4.8.zip/download
+    unzip opencv-2.4.8.zip
+    mkdir opencv-2.4.8/build/
+    cd opencv-2.4.8/build/
+    cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/app/vendor/opencv-2.4.8 -DBUILD_SHARED_LIBS=NO
+    sudo make -j 4 install
+5. compile statically tiledviewer-1.0.0
+    git clone form github repository
+    mkdir TiledViewer/build
+    cd TiledViewer/build
+    export OpenCV_DIR=/app/vendor/opencv-2.4.8/share/OpenCV/
+    cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/app/vendor/tiledviewer-1.0.0 -DBUILD_SHARED_LIBS=NO
+6. make archive from build
+    tar cvzf tiledviewr-1.0.0.tar.gz ./
+    cd /app/vendor/opencv-2.4.8
+    tar cvzf opencv-2.4.8.tar.gz ./
+7. put archive where it is downloadable from buildpack (AWS s3 for instance)
