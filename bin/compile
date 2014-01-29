@@ -32,12 +32,12 @@ function indent() {
 opencv_version="2.4.8"
 opencv_build_url="http://jpm-guides-staging.s3.amazonaws.com/opencv-${opencv_version}.tar.gz"
 opencv_dir="opencv-${opencv_version}"
-opencv_tar_file="opencv-${opencv_version}.tar.gz"
+opencv_tar_file="${opencv_dir}.tar.gz"
 
 tiledviewer_version="1.0.0"
 tiledviewer_build_url="http://jpm-guides-staging.s3.amazonaws.com/tiledviewer-${tiledviewer_version}.tar.gz"
 tiledviewer_dir="tiledviewer-${tiledviewer_version}"
-tiledviewer_tar_file="tiledviwer-${tiledviewer_version}.tar.gz"
+tiledviewer_tar_file="${tiledviewer_dir}.tar.gz"
 
 ############################
 #   opencv installation    #
@@ -58,8 +58,16 @@ if [ ! -f ${cache_target}/ ]; then
   tar zxf ${opencv_tar_file}
 
   # cache slug
-  rm ${opencv_tar_file}
-  tar czf ${cache_target} -C ${build_target} .
+  mv ${opencv_tar_file} ${cache_target}
+
+else
+  echo 'retrive build from cache' | indent
+
+  mkdir -p ${build_target}
+  cd ${build_target}
+
+  cp ${cache_target} ${opencv_tar_file}
+  tar zxf ${opencv_tar_file}
 fi
 
   echo 'Linking binaries...' | indent
@@ -90,8 +98,15 @@ if [ ! -f ${cache_target} ]; then
   tar zxf ${tiledviewer_tar_file}
 
   #cache slug
-  rm ${tiledviewer_tar_file}
-  tar czf ${cache_target}  -C ${build_target} .
+  mv ${tiledviewer_tar_file} ${cache_target}
+else
+  echo 'retrive build from cache' | indent
+
+  mkdir -p ${build_target}
+  cd ${build_target}
+
+  cp ${cache_target} ${tiledviewer_tar_file}
+  tar zxf ${tiledviewer_tar_file}
 fi
 
 echo 'Linking binaries...' | indent
