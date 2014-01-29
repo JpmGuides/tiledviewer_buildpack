@@ -48,7 +48,7 @@ steps "installing opencv v${opencv_version}..."
 build_target=${build}/vendor/${opencv_dir}
 cache_target=${cache}/${opencv_tar_file}
 
-if [ ! -f ${cache_target}/ ]; then
+if [ ! -f ${cache_target} ]; then
   echo 'No cached compile detected. Installing...' | indent
 
   mkdir -p ${build_target}
