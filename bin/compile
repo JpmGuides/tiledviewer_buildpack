@@ -58,6 +58,7 @@ if [ ! -f ${cache_target} ]; then
   tar zxf ${opencv_tar_file}
 
   # cache slug
+  mkdir -p ${cache_target}
   mv ${opencv_tar_file} ${cache_target}
 
 else
@@ -98,6 +99,7 @@ if [ ! -f ${cache_target} ]; then
   tar zxf ${tiledviewer_tar_file}
 
   #cache slug
+  mkdir -p ${cache_target}
   mv ${tiledviewer_tar_file} ${cache_target}
 else
   echo 'retrive build from cache' | indent
