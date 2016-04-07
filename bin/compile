@@ -30,12 +30,12 @@ function indent() {
 ############################
 
 opencv_version="2.4.8"
-opencv_build_url="http://jpm-guides-staging.s3.amazonaws.com/opencv-${opencv_version}.tar.gz"
+opencv_build_url="http://destinationbook-heroku.s3.amazonaws.com/buildpacks/opencv-${opencv_version}.tar.gz"
 opencv_dir="opencv-${opencv_version}"
 opencv_tar_file="${opencv_dir}.tar.gz"
 
 tiledviewer_version="1.0.0"
-tiledviewer_build_url="http://jpm-guides-staging.s3.amazonaws.com/tiledviewer-${tiledviewer_version}.tar.gz"
+tiledviewer_build_url="http://destinationbook-heroku.s3.amazonaws.com/buildpacks/tiledviewer-${tiledviewer_version}.tar.gz"
 tiledviewer_dir="tiledviewer-${tiledviewer_version}"
 tiledviewer_tar_file="${tiledviewer_dir}.tar.gz"
 
