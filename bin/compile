@@ -15,6 +15,8 @@ CACHED_DIRS=".heroku"
 
 build=$BUILD_DIR
 cache=$CACHE_DIR
+#create cache dir
+mkdir -p ${cache}
 
 # Syntax sugar.
 function steps (){
