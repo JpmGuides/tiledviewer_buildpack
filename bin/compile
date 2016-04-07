@@ -55,12 +55,10 @@ if [ ! -f ${cache_target} ]; then
   cd ${build_target}
 
   curl --silent --max-time 120 --location ${opencv_build_url} > ${opencv_tar_file}
+  # tar file to cache
+  cp ${opencv_tar_file} ${cache_target}
+  
   tar zxf ${opencv_tar_file}
-
-  # cache slug
-  mkdir -p ${cache_target}
-  mv ${opencv_tar_file} ${cache_target}
-
 else
   echo 'retrive build from cache' | indent
 
